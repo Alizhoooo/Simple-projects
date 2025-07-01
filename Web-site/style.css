@@ -1,0 +1,95 @@
+/* Basic reset for consistent styling */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Ensure html and body take up full viewport height */
+html, body {
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling */
+    font-family: 'Arial', sans-serif;
+    color: #ffffff; /* White text for contrast on dark background */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Enhance text readability */
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1a1a2e; /* Dark fallback background */
+}
+
+/* Canvas styling to cover the entire background */
+#particleCanvas {
+    position: fixed; /* Fixed position relative to viewport */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    z-index: -1; /* Place behind other content */
+    background-color: #1a1a2e; /* Ensure a dark background for particles */
+}
+
+/* Overlay content styling */
+.content-overlay {
+    position: relative; /* Position relative to allow z-index */
+    z-index: 1; /* Place above the canvas */
+    text-align: center;
+    padding: 20px;
+    max-width: 800px;
+}
+
+.main-title {
+    font-size: 4em; /* Large main title */
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    animation: fadeIn 2s ease-out; /* Simple fade-in animation */
+}
+
+.subtitle {
+    font-size: 1.5em;
+    margin-bottom: 30px;
+    animation: fadeIn 2.5s ease-out; /* Slightly delayed fade-in */
+}
+
+.instruction-text {
+    font-size: 1.1em;
+    opacity: 0.8;
+    animation: fadeIn 3s ease-out; /* Even more delayed fade-in */
+}
+
+/* Simple fade-in keyframe animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 3em;
+    }
+    .subtitle {
+        font-size: 1.2em;
+    }
+    .instruction-text {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-title {
+        font-size: 2.2em;
+    }
+    .subtitle {
+        font-size: 1em;
+    }
+    .instruction-text {
+        font-size: 0.9em;
+    }
+    .content-overlay {
+        padding: 15px;
+    }
+}

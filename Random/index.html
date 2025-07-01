@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор цитат</title>
+    <!-- Подключаем Tailwind CSS для базовых стилей и легкости адаптивности -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Global styles for body */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Minimum height to fill viewport */
+            margin: 0;
+            padding: 20px; /* Padding for mobile responsiveness */
+            box-sizing: border-box;
+        }
+
+        /* Styles for the quote box container */
+        #quote-box {
+            background-color: #ffffff;
+            padding: 2.5rem; /* Increased padding */
+            border-radius: 1.25rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Softer, larger shadow */
+            max-width: 38rem; /* Increased max-width */
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem; /* Space between elements */
+        }
+
+        /* Styles for the quote text */
+        #quote-text {
+            font-size: 2.25rem; /* Larger font size */
+            font-weight: 600; /* Semi-bold */
+            color: #2d3748; /* Darker text for better contrast */
+            line-height: 1.6;
+            font-style: italic; /* Italic for quotes */
+            position: relative; /* Needed for pseudo-elements or more complex animations */
+            margin-bottom: 0.5rem; /* Space before author */
+
+            /* CSS Transitions for animation */
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            opacity: 0; /* Initial state for animation */
+            transform: translateY(20px); /* Initial state for slide-up effect */
+        }
+
+        /* Styles for the quote author */
+        #quote-author {
+            font-size: 1.25rem; /* Larger font size */
+            color: #4a5568; /* Medium gray */
+            font-weight: 500; /* Medium weight */
+            align-self: flex-end; /* Align to the right */
+
+            /* CSS Transitions for animation */
+            transition: opacity 0.8s ease-in-out 0.1s, transform 0.8s ease-in-out 0.1s; /* Slight delay for author */
+            opacity: 0; /* Initial state for animation */
+            transform: translateY(20px); /* Initial state for slide-up effect */
+        }
+
+        /* Styles for the New Quote button */
+        #new-quote-btn {
+            margin-top: 1.5rem; /* Space above button */
+            padding: 0.9rem 2.25rem; /* More padding */
+            background-image: linear-gradient(to right, #4CAF50, #8BC34A); /* Green gradient */
+            color: white;
+            font-weight: 700; /* Bold font */
+            font-size: 1.125rem; /* Larger font size */
+            border: none;
+            border-radius: 9999px; /* Fully rounded pill shape */
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); /* Green shadow */
+            cursor: pointer;
+            transition: all 0.3s ease; /* Smooth transition for all properties */
+            outline: none; /* Remove outline on focus */
+        }
+
+        #new-quote-btn:hover {
+            transform: translateY(-3px); /* Lift button on hover */
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6); /* More prominent shadow on hover */
+        }
+
+        #new-quote-btn:active {
+            transform: translateY(0); /* Press down effect on click */
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3); /* Smaller shadow when active */
+        }
+    </style>
+</head>
+<body class="selection:bg-green-300 selection:text-green-900">
+    <div id="quote-box">
+        <p id="quote-text">
+            <!-- Initial quote for display -->
+            "The best way to predict the future is to create it."
+        </p>
+        <span id="quote-author">
+            - Peter Drucker
+        </span>
+        <button id="new-quote-btn">Новая цитата</button>
+    </div>
+
+    <script>
+        // Array of quotes. Add more quotes here!
+        const quotes = [
+            {
+                text: "The future belongs to those who believe in the beauty of their dreams.",
+                author: "Eleanor Roosevelt"
+            },
+            {
+                text: "The only way to do great work is to love what you do.",
+                author: "Steve Jobs"
+            },
+            {
+                text: "Life is what happens to you while you're busy making other plans.",
+                author: "John Lennon"
+            },
+            {
+                text: "Impossible is just a big word thrown around by small men who find it easier to live in the world they've been given than to explore the power they have to change it.",
+                author: "Muhammad Ali"
+            },
+            {
+                text: "Every day is a new opportunity to change your life.",
+                author: "Unknown"
+            },
+            {
+                text: "Great things are never done by one person. They're done by a team of people.",
+                author: "Steve Jobs"
+            },
+            {
+                text: "If you want to build a ship, don't drum up people to collect wood and don't assign them tasks and work, but rather teach them to long for the endless immensity of the sea.",
+                author: "Antoine de Saint-Exupéry"
+            },
+            {
+                text: "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful.",
+                author: "Albert Schweitzer"
+            },
+            {
+                text: "Don't wait. The time will never be just right.",
+                author: "Napoleon Hill"
+            },
+            {
+                text: "Believe in yourself and all that you are. Know that there is something inside you that is greater than any obstacle.",
+                author: "Christian D. Larson"
+            },
+            {
+                text: "The only limit to our realization of tomorrow will be our doubts of today.",
+                author: "Franklin D. Roosevelt"
+            }
+        ];
+
+        // Get references to HTML elements
+        const quoteTextElement = document.getElementById('quote-text');
+        const quoteAuthorElement = document.getElementById('quote-author');
+        const newQuoteBtn = document.getElementById('new-quote-btn');
+
+        /**
+         * Generates and displays a new random quote with animation.
+         */
+        function generateQuote() {
+            // Apply initial state for fade-out/slide-down effect (or just resetting for re-animation)
+            // By setting opacity to 0 and translateY to 20px, the CSS transition will
+            // smoothly animate when these properties are changed back.
+            quoteTextElement.style.opacity = '0';
+            quoteTextElement.style.transform = 'translateY(20px)';
+            quoteAuthorElement.style.opacity = '0';
+            quoteAuthorElement.style.transform = 'translateY(20px)';
+
+            // Use a small timeout to allow the browser to register the opacity/transform change
+            // before updating content and setting new opacity/transform for the fade-in animation.
+            // This ensures the transition is re-triggered every time.
+            setTimeout(() => {
+                // Get a random quote from the array
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                const randomQuote = quotes[randomIndex];
+
+                // Update the text content of the quote and author elements
+                quoteTextElement.textContent = `"${randomQuote.text}"`;
+                quoteAuthorElement.textContent = `- ${randomQuote.author}`;
+
+                // Apply final state for fade-in/slide-up effect
+                // The CSS transition property will handle the animation from the initial state
+                // (opacity 0, translateY 20px) to the final state (opacity 1, translateY 0).
+                quoteTextElement.style.opacity = '1';
+                quoteTextElement.style.transform = 'translateY(0)';
+                quoteAuthorElement.style.opacity = '1';
+                quoteAuthorElement.style.transform = 'translateY(0)';
+            }, 100); // A small delay (e.g., 100ms) to ensure the animation re-triggers
+        }
+
+        // Add event listener for the "New Quote" button
+        newQuoteBtn.addEventListener('click', generateQuote);
+
+        // Generate a quote when the page loads
+        window.onload = generateQuote;
+    </script>
+</body>
+</html>

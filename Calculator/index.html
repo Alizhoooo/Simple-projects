@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой Калькулятор</title>
+    <!-- Tailwind CSS for basic styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Global styles for body */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Calculator container */
+        .calculator {
+            background-color: #1a202c; /* Dark background for calculator */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 320px; /* Standard calculator width */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Display area */
+        .calculator-display {
+            background-color: #4a5568; /* Darker gray for display */
+            color: #fff;
+            font-size: 3em; /* Larger font size for display */
+            text-align: right;
+            padding: 15px 20px;
+            border-radius: 10px;
+            min-height: 80px; /* Ensures consistent height */
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden; /* Hide overflow text */
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        /* Buttons grid */
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns, equal width */
+            gap: 10px; /* Space between buttons */
+        }
+
+        /* Base button styles */
+        .calculator-button {
+            background-color: #2d3748; /* Darker button background */
+            color: #fff;
+            font-size: 1.8em; /* Larger font for buttons */
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            outline: none; /* Remove focus outline */
+        }
+
+        .calculator-button:hover {
+            background-color: #4a5568; /* Lighter on hover */
+        }
+
+        .calculator-button:active {
+            transform: scale(0.98); /* Slight press effect */
+        }
+
+        /* Operator buttons */
+        .calculator-button[data-type="operator"] {
+            background-color: #3182ce; /* Blue for operators */
+        }
+
+        .calculator-button[data-type="operator"]:hover {
+            background-color: #2c5282;
+        }
+
+        /* Equal button */
+        .calculator-button[data-type="equals"] {
+            background-color: #38a169; /* Green for equals */
+            grid-column: span 2; /* Spans two columns */
+        }
+
+        .calculator-button[data-type="equals"]:hover {
+            background-color: #2f855a;
+        }
+
+        /* Clear button */
+        .calculator-button[data-type="clear"] {
+            background-color: #e53e3e; /* Red for clear */
+        }
+
+        .calculator-button[data-type="clear"]:hover {
+            background-color: #c53030;
+        }
+
+        /* Zero button (optional: span 2 columns) */
+         .calculator-button[data-value="0"] {
+            grid-column: span 2; 
+        } 
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="calculator-display" id="calculatorDisplay">0</div>
+        <div class="calculator-buttons">
+            <button class="calculator-button" data-type="clear">C</button>
+            <button class="calculator-button" data-type="operator" data-value="/">&divide;</button>
+            <button class="calculator-button" data-type="operator" data-value="*">&times;</button>
+            <button class="calculator-button" data-type="operator" data-value="-">-</button>
+
+            <button class="calculator-button" data-type="number" data-value="7">7</button>
+            <button class="calculator-button" data-type="number" data-value="8">8</button>
+            <button class="calculator-button" data-type="number" data-value="9">9</button>
+            <button class="calculator-button" data-type="operator" data-value="+">+</button>
+
+            <button class="calculator-button" data-type="number" data-value="4">4</button>
+            <button class="calculator-button" data-type="number" data-value="5">5</button>
+            <button class="calculator-button" data-type="number" data-value="6">6</button>
+
+            <button class="calculator-button" data-type="number" data-value="1">1</button>
+            <button class="calculator-button" data-type="number" data-value="2">2</button>
+            <button class="calculator-button" data-type="number" data-value="3">3</button>
+            <button class="calculator-button" data-type="number" data-value="0">0</button>
+
+            <button class="calculator-button" data-type="decimal" data-value=".">.</button>
+            <button class="calculator-button" data-type="equals" data-value="=">=</button>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const calculatorDisplay = document.getElementById('calculatorDisplay');
+        const calculatorButtons = document.querySelectorAll('.calculator-button'); // Select all calculator buttons
+
+        // Variables to store calculator state
+        let currentInput = '0'; // What's currently displayed
+        let previousInput = ''; // The number before the operator
+        let operator = null;    // The selected operator (+, -, *, /)
+        let waitingForSecondOperand = false; // Flag to indicate if we're waiting for the next number after an operator
+
+        /**
+         * Updates the display of the calculator.
+         * @param {string} value - The string value to display.
+         */
+        function updateDisplay(value) {
+            calculatorDisplay.textContent = value;
+        }
+
+        /**
+         * Handles number button clicks or key presses.
+         * @param {string} number - The number string (e.g., '7', '0').
+         */
+        function inputNumber(number) {
+            if (waitingForSecondOperand) {
+                currentInput = number;
+                waitingForSecondOperand = false;
+            } else {
+                // If currentInput is '0' and the new number is not '0.', replace it. Otherwise, append.
+                // This prevents multiple leading zeros or '012'
+                currentInput = (currentInput === '0' && number !== '.') ? number : currentInput + number;
+            }
+            updateDisplay(currentInput);
+        }
+
+        /**
+         * Handles decimal point button click or key press.
+         */
+        function inputDecimal() {
+            if (waitingForSecondOperand) {
+                currentInput = '0.'; // Start with '0.' if starting a new number
+                waitingForSecondOperand = false;
+            } else if (!currentInput.includes('.')) {
+                // Only add decimal if it's not already there
+                currentInput += '.';
+            }
+            updateDisplay(currentInput);
+        }
+
+        /**
+         * Handles operator button clicks or key presses.
+         * @param {string} nextOperator - The operator string (e.g., '+', '-').
+         */
+        function handleOperator(nextOperator) {
+            const inputValue = parseFloat(currentInput); // Convert current input to a number
+
+            if (operator && waitingForSecondOperand) {
+                // If an operator was already pressed and we're waiting for the second operand,
+                // just update the operator (e.g., changing from + to -)
+                operator = nextOperator;
+                return;
+            }
+
+            if (previousInput === '') {
+                // If this is the first number in a calculation, store it as previousInput
+                previousInput = inputValue;
+            } else if (operator) {
+                // If there's a previous number and an operator, perform the calculation
+                const result = operate(previousInput, inputValue, operator);
+                // Handle potential 'Error' from division by zero
+                if (result === 'Error') {
+                    currentInput = 'Error';
+                    previousInput = '';
+                    operator = null;
+                    waitingForSecondOperand = false;
+                    updateDisplay(currentInput);
+                    return;
+                }
+                currentInput = String(result); // Update currentInput with the result
+                updateDisplay(currentInput);
+                previousInput = result; // Store the result as the new previous input for chaining operations
+            }
+
+            waitingForSecondOperand = true; // Set flag to true to clear display for next number
+            operator = nextOperator; // Store the new operator
+        }
+
+        /**
+         * Performs the calculation based on the operator.
+         * @param {number} num1 - The first number.
+         * @param {number} num2 - The second number.
+         * @param {string} op - The operator string.
+         * @returns {number | string} The result of the operation or 'Error'.
+         */
+        function operate(num1, num2, op) {
+            switch (op) {
+                case '+':
+                    return num1 + num2;
+                case '-':
+                    return num1 - num2;
+                case '*':
+                    return num1 * num2;
+                case '/':
+                    // Handle division by zero
+                    if (num2 === 0) {
+                        return 'Error'; // Display an error message
+                    }
+                    return num1 / num2;
+                default:
+                    return num2; // Should not happen
+            }
+        }
+
+        /**
+         * Resets the calculator to its initial state.
+         */
+        function resetCalculator() {
+            currentInput = '0';
+            previousInput = '';
+            operator = null;
+            waitingForSecondOperand = false;
+            updateDisplay(currentInput);
+        }
+
+        /**
+         * Handles the equals button click or key press.
+         */
+        function handleEquals() {
+            if (previousInput === '' || operator === null) {
+                // If no full operation is pending, do nothing
+                return;
+            }
+
+            const inputValue = parseFloat(currentInput);
+            let result;
+            try {
+                result = operate(previousInput, inputValue, operator);
+            } catch (error) {
+                result = 'Error'; // Catch potential errors (though operate handles division by zero)
+            }
+
+            if (result === 'Error') {
+                currentInput = 'Error';
+            } else {
+                currentInput = String(result);
+            }
+
+            updateDisplay(currentInput);
+            previousInput = ''; // Reset previous input after showing result
+            operator = null;
+            waitingForSecondOperand = false; // Allow new numbers to start from scratch
+        }
+
+        /**
+         * Handles backspace key press to delete the last digit.
+         */
+        function handleBackspace() {
+            if (waitingForSecondOperand || currentInput === 'Error') {
+                // If waiting for next operand or currently showing error, backspace should clear
+                resetCalculator();
+                return;
+            }
+            currentInput = currentInput.slice(0, -1); // Remove the last character
+            if (currentInput === '' || currentInput === '-') { // If empty or only a minus sign
+                currentInput = '0'; // Set back to '0'
+            }
+            updateDisplay(currentInput);
+        }
+
+        // Add event listeners to all calculator buttons
+        calculatorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const buttonType = button.dataset.type; // Get data-type attribute
+                const buttonValue = button.dataset.value || button.textContent; // Get data-value or text content
+
+                if (buttonType === 'number') {
+                    inputNumber(buttonValue);
+                } else if (buttonType === 'operator') {
+                    handleOperator(buttonValue);
+                } else if (buttonType === 'decimal') {
+                    inputDecimal();
+                } else if (buttonType === 'clear') {
+                    resetCalculator();
+                } else if (buttonType === 'equals') {
+                    handleEquals();
+                }
+            });
+        });
+
+        // Add keyboard support
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+
+            if (/[0-9]/.test(key)) { // Check if the key is a digit
+                inputNumber(key);
+            } else if (key === '.') {
+                inputDecimal();
+            } else if (['+', '-', '*', '/'].includes(key)) {
+                handleOperator(key);
+            } else if (key === 'Enter') {
+                event.preventDefault(); // Prevent default 'Enter' behavior (e.g., form submission)
+                handleEquals();
+            } else if (key === 'Escape' || key.toLowerCase() === 'c') { // 'Escape' or 'c' for clear
+                resetCalculator();
+            } else if (key === 'Backspace') {
+                handleBackspace();
+            }
+        });
+
+        // Initialize display on load
+        updateDisplay(currentInput);
+    </script>
+</body>
+</html>
