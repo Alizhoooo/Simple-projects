@@ -1,0 +1,99 @@
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        /* Используем flexbox для центрирования всего содержимого body */
+        display: flex;
+        justify-content: center; /* Центрирует по горизонтали */
+        align-items: flex-start; /* Выравнивает сверху, чтобы контент не был прямо по центру экрана */
+        min-height: 100vh; /* Занимает всю высоту viewport */
+        padding: 20px;
+        box-sizing: border-box; /* Важно для padding */
+    }
+
+    .container {
+        width: 100%; /* Занимает всю доступную ширину */
+        max-width: 600px; /* Ограничивает ширину контейнера на больших экранах */
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Более выразительная тень */
+        text-align: center; /* Центрируем заголовок */
+    }
+
+    h1 {
+        color: #333;
+        margin-bottom: 25px; /* Увеличим отступ снизу */
+    }
+
+    /* Новый контейнер для input и button, чтобы их выровнять */
+    .input-group {
+        display: flex; /* Делаем из них flex-элементы */
+        gap: 10px; /* Промежуток между input и button */
+        margin-bottom: 20px; /* Отступ от списка задач */
+    }
+
+    #task-input {
+        flex-grow: 1; /* Позволяет input занимать всё доступное пространство */
+        padding: 12px; /* Увеличим padding для лучшего внешнего вида */
+        border: 1px solid #ccc;
+        border-radius: 8px; /* Чуть более скругленные углы */
+        font-size: 16px;
+    }
+
+    #add-task-btn {
+        padding: 12px 20px; /* Увеличим padding для кнопки */
+        background-color: #007bff; /* Пример более современного синего цвета */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease; /* Добавим плавный переход */
+    }
+
+    #add-task-btn:hover {
+        background-color: #0056b3; /* Изменение цвета при наведении */
+    }
+
+    /* Остальные стили, которые у тебя уже есть, остаются хорошими: */
+    #task-list {
+        list-style-type: none;
+        padding: 0;
+        margin-top: 0; /* Убираем лишний верхний отступ, так как input-group дает его */
+    }
+
+    .task-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px; /* Увеличим отступы */
+        margin-bottom: 10px; /* Больший отступ между задачами */
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+        transition: all 0.3s ease; /* Плавное изменение при выполнении */
+    }
+
+    .task-item.completed {
+        text-decoration: line-through;
+        color: #888;
+        background-color: #f9f9f9; /* Более светлый фон для выполненных */
+    }
+
+    .delete-btn {
+        background-color: #dc3545; /* Красный цвет Bootstrap */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 8px 12px; /* Увеличим padding */
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .delete-btn:hover {
+        background-color: #c82333;
+    }
+    
